@@ -1,6 +1,6 @@
 import View from "../core/view";
 import { NewsFeedApi } from "../core/api";
-import { NewsFeed } from "../types";
+import { NewsFeed, NewsStore } from "../types";
 import { NEWS_URL } from "../config";
 
 const template = `
@@ -30,29 +30,34 @@ const template = `
 
 export default class NewsFeedView extends View {
   private api: NewsFeedApi;
-  private feeds: NewsFeed[];
+  // private feeds: NewsFeed[];
+  private store: NewsStore;
 
-  constructor(containerId: string) {
+  constructor(containerId: string, store: NewsStore) {
     super(containerId, template);
     // this.api = new NewsFeedApi();
     this.api = new NewsFeedApi(NEWS_URL);
-    this.feeds = store.feeds;
-    store.lastPage = this.feeds.length / 10;
+    // this.feeds = store.feeds;
+    this.store = store;
+    // store.lastPage = this.feeds.length / 10;
 
-    if (this.feeds.length === 0) {
-      this.feeds = store.feeds = this.api.getData();
-      this.makeFeeds();
+    // if (this.feeds.length === 0) {
+    //   this.feeds = store.feeds = this.api.getData();
+    //   this.makeFeeds();
+    // }
+    if (!this.store.hasFeeds) {
+      this.store.setFeeds(this.api.getData());
     }
   }
   render(): void {
-    store.currentPage = Number(location.hash.substr(7) || 1);
+    this.store.currentPage = Number(location.hash.substr(7) || 1);
     for (
-      let i = (store.currentPage - 1) * 10;
-      i < store.currentPage * 10;
+      let i = (this.store.currentPage - 1) * 10;
+      i < this.store.currentPage * 10;
       i++
     ) {
       const { id, title, comments_count, user, points, time_ago, read } =
-        this.feeds[i];
+        this.store.getFeed(i);
       this.addHtml(`
         <div class="p-6 ${
           read ? "bg-red-500" : "bg-white"
@@ -77,25 +82,15 @@ export default class NewsFeedView extends View {
     }
 
     this.setTemplateData("news_feed", this.getHtml());
-    this.setTemplateData(
-      "prev_page",
-      String(store.currentPage > 1 ? store.currentPage - 1 : 1)
-    );
-    this.setTemplateData(
-      "next_page",
-      String(
-        store.currentPage === store.lastPage
-          ? store.currentPage
-          : store.currentPage + 1
-      )
-    );
+    this.setTemplateData("prev_page", String(this.store.prevPage));
+    this.setTemplateData("next_page", String(this.store.nextPage));
 
     this.updateView();
   }
 
-  private makeFeeds(): void {
-    for (let i = 0; i < this.feeds.length; i++) {
-      this.feeds[i].read = false;
-    }
-  }
+  // private makeFeeds(): void {
+  //   for (let i = 0; i < this.feeds.length; i++) {
+  //     this.feeds[i].read = false;
+  //   }
+  // }
 }
