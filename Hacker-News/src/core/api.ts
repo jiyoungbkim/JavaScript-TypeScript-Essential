@@ -39,6 +39,11 @@ export class Api {
         console.error("data를 불러오지 못했습니다.");
       });
   }
+  // async / await
+  async request<AjaxResponse>(): Promise<AjaxResponse> {
+    const response = await fetch(this.url);
+    return (await response.json()) as AjaxResponse;
+  }
 }
 
 export class NewsFeedApi extends Api {
@@ -54,6 +59,10 @@ export class NewsFeedApi extends Api {
   getDataWithPromise(cb: (data: NewsFeed[]) => void): void {
     return this.getRequestWithPromise<NewsFeed[]>(cb);
   }
+  // async / await
+  async getData(): Promise<NewsFeed[]> {
+    return this.request<NewsFeed[]>();
+  }
 }
 
 export class NewsDetailApi extends Api {
@@ -68,6 +77,10 @@ export class NewsDetailApi extends Api {
   }
   getDataWithPromise(cb: (data: NewsDetail) => void): void {
     return this.getRequestWithPromise<NewsDetail>(cb);
+  }
+  // async / await
+  async getData(): Promise<NewsDetail> {
+    return this.request<NewsDetail>();
   }
 }
 /* 믹스인 */

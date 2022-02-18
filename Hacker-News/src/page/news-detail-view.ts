@@ -39,23 +39,21 @@ export default class NewsDetailView extends View {
 
     this.store = store;
   }
-  render() {
+  render = async (): Promise<void> => {
     const id = location.hash.substring(7);
     const api = new NewsDetailApi(CONTENT_URL.replace("@id", id));
     // const api = new NewsDetailApi();
     // const newsDetail: NewsDetail = api.getData(id);
-    api.getDataWithPromise((data: NewsDetail) => {
-      const newsDetail: NewsDetail = data;
+    const newsDetail = await api.getData();
 
-      this.store.makeRead(Number(id));
-      this.setTemplateData("comments", this.makeComment(newsDetail.comments));
-      this.setTemplateData("currentPage", String(this.store.currentPage));
-      this.setTemplateData("title", newsDetail.title);
-      this.setTemplateData("content", newsDetail.content);
+    this.store.makeRead(Number(id));
+    this.setTemplateData("comments", this.makeComment(newsDetail.comments));
+    this.setTemplateData("currentPage", String(this.store.currentPage));
+    this.setTemplateData("title", newsDetail.title);
+    this.setTemplateData("content", newsDetail.content);
 
-      this.updateView();
-    });
-  }
+    this.updateView();
+  };
   makeComment(comments: NewsComment[]): string {
     for (let i = 0; i < comments.length; i++) {
       const comment: NewsComment = comments[i];
