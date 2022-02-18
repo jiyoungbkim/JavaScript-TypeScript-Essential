@@ -44,21 +44,17 @@ export default class NewsDetailView extends View {
     const api = new NewsDetailApi(CONTENT_URL.replace("@id", id));
     // const api = new NewsDetailApi();
     // const newsDetail: NewsDetail = api.getData(id);
-    const newsDetail: NewsDetail = api.getData();
+    api.getDataWithPromise((data: NewsDetail) => {
+      const newsDetail: NewsDetail = data;
 
-    // for (let i = 0; i < store.feeds.length; i++) {
-    //   if (store.feeds[i].id === Number(id)) {
-    //     store.feeds[i].read = true;
-    //     break;
-    //   }
-    // }
-    this.store.makeRead(Number(id));
-    this.setTemplateData("comments", this.makeComment(newsDetail.comments));
-    this.setTemplateData("currentPage", String(this.store.currentPage));
-    this.setTemplateData("title", newsDetail.title);
-    this.setTemplateData("content", newsDetail.content);
+      this.store.makeRead(Number(id));
+      this.setTemplateData("comments", this.makeComment(newsDetail.comments));
+      this.setTemplateData("currentPage", String(this.store.currentPage));
+      this.setTemplateData("title", newsDetail.title);
+      this.setTemplateData("content", newsDetail.content);
 
-    this.updateView();
+      this.updateView();
+    });
   }
   makeComment(comments: NewsComment[]): string {
     for (let i = 0; i < comments.length; i++) {

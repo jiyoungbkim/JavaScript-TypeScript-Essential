@@ -45,12 +45,19 @@ export default class NewsFeedView extends View {
     //   this.feeds = store.feeds = this.api.getData();
     //   this.makeFeeds();
     // }
-    if (!this.store.hasFeeds) {
-      this.store.setFeeds(this.api.getData());
-    }
   }
   render(): void {
     this.store.currentPage = Number(location.hash.substr(7) || 1);
+
+    if (!this.store.hasFeeds) {
+      this.api.getDataWithPromise((feeds: NewsFeed[]) => {
+        this.store.setFeeds(feeds);
+        this.renderView();
+      });
+    }
+    this.renderView();
+  }
+  renderView = () => {
     for (
       let i = (this.store.currentPage - 1) * 10;
       i < this.store.currentPage * 10;
@@ -86,7 +93,7 @@ export default class NewsFeedView extends View {
     this.setTemplateData("next_page", String(this.store.nextPage));
 
     this.updateView();
-  }
+  };
 
   // private makeFeeds(): void {
   //   for (let i = 0; i < this.feeds.length; i++) {
